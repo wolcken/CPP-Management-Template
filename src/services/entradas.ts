@@ -65,6 +65,7 @@ export async function createEntrada(input: EntradaInput): Promise<string> {
         totalNeto,
         costoUnitarioNeto,
         ivaRate,
+        unidadMedida: input.unidadMedida,
         createdAt: serverTimestamp(),
     };
 
