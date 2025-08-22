@@ -195,7 +195,7 @@ const EntradaForm: React.FC<Props> = ({
                     />
                 </div>
                 <div>
-                    <label>Precio unitario (bruto)</label>
+                    <label>Precio unitario</label>
                     <input
                         type="number"
                         step="0.01"
@@ -242,7 +242,7 @@ const EntradaForm: React.FC<Props> = ({
             {/* Totales */}
             <div className="grid-3">
                 <div>
-                    <label>Subtotal (bruto)</label>
+                    <label>Subtotal</label>
                     <input value={calc.subtotal} readOnly />
                 </div>
                 <div>
@@ -250,7 +250,7 @@ const EntradaForm: React.FC<Props> = ({
                     <input value={calc.descuentoMonto} readOnly />
                 </div>
                 <div>
-                    <label>Total operación (bruto)</label>
+                    <label>Total operación</label>
                     <input value={calc.totalOperacion} readOnly />
                 </div>
                 <div>
