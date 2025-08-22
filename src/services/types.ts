@@ -1,8 +1,11 @@
 export type Marca = { id: string; nombre: string };
+
 export type Categoria = { id: string; nombre: string };
+
 export type Proveedor = {
     id: string;
     nombre: string;
+    nit: string;
     representante?: string;
     direccion?: string;
     telefono?: string;
@@ -23,25 +26,52 @@ export type ProductoInput = Omit<Producto, "id">;
 
 export type Entrada = {
     id: string;
+
+    // Producto
     productoId: string;
     productoNombre?: string;
     productoSku?: string;
-    fecha: any;               // Timestamp
-    unidades: number;         // cantidad comprada
-    precioUnitario: number;   // bruto
-    precioTotal: number;      // bruto = unidades * precioUnitario
-    totalNeto: number;        // sin IVA
-    costoUnitarioNeto: number;// totalNeto / unidades
-    ivaRate: number;          // p.ej. 0.13
-    createdAt?: any;          // Timestamp
+
+    // Proveedor (desnormalizado)
+    proveedorId: string;
+    proveedorNombre?: string;
+    proveedorNit?: string;
+
+    // Documento
+    fecha: any;                // Timestamp
+    nroFactura?: string;
+
+    // Detalle
+    unidades: number;
+    unidadMedida?: string;
+    descripcionExtra?: string;
+
+    // Precios
+    precioUnitario: number;    // bruto
+    subtotal: number;          // bruto = unidades * precioUnitario
+    descuentoPct?: number;
+    descuentoMonto?: number;
+    totalOperacion: number;    // bruto - desc
+    precioTotal?: number;      // alias de totalOperacion
+
+    // Neto
+    ivaRate: number;
+    totalNeto: number;
+    costoUnitarioNeto: number;
+
+    createdAt?: any;
 };
 
 export type EntradaInput = {
     productoId: string;
+    proveedorId: string;
     fecha: Date | string;     // "YYYY-MM-DD" o Date
     unidades: number;
     precioUnitario: number;   // bruto
     ivaRate?: number;         // default 0.13
+    nroFactura?: string;
+    unidadMedida?: string;
+    descripcionExtra?: string;
 };
 
 export type FacturaItem = {

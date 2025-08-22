@@ -15,7 +15,11 @@ const ProveedoresModal: React.FC<Props> = ({ open, onClose, items, loading, onAd
                 {items.map((p, i) => (
                     <li key={p.id} className="item column">
                         <div className="left wide">
-                            <div className="row"><span className="index">{i + 1}.</span><strong className="name">{p.nombre}</strong></div>
+                            <div className="row">
+                                <span className="index">{i + 1}.</span>
+                                <strong className="name">{p.nombre}</strong>
+                            </div>
+                            {p.nit && <div className="muted">NIT: {p.nit}</div>}
                             {p.representante && <div className="muted">{p.representante}</div>}
                             {p.direccion && <div className="muted">{p.direccion}</div>}
                             {p.telefono && <div className="muted">{p.telefono}</div>}

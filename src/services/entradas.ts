@@ -32,6 +32,7 @@ export async function createEntrada(input: EntradaInput): Promise<string> {
     const unidades = Number(input.unidades);
     const precioUnitario = Number(input.precioUnitario);
     if (!input.productoId) throw new Error("Selecciona un producto.");
+    if (!input.proveedorId) throw new Error("Selecciona un proveedor.");
     if (!unidades || unidades <= 0) throw new Error("Unidades inválidas.");
     if (!precioUnitario || precioUnitario <= 0) throw new Error("Precio unitario inválido.");
 
@@ -42,13 +43,22 @@ export async function createEntrada(input: EntradaInput): Promise<string> {
     if (!pSnap.exists()) throw new Error("Producto no encontrado.");
     const pData = pSnap.data() as any;
 
+    // Denormalizar datos del proveedor (nombre, nit)
+    const provSnap = await getDoc(doc(db, "proveedores", input.proveedorId));
+    if (!provSnap.exists()) throw new Error("Proveedor no encontrado.");
+    const provData = provSnap.data() as any;
+
     const { precioTotal, totalNeto, costoUnitarioNeto } = computeTotals(unidades, precioUnitario, ivaRate);
 
     const payload = {
         productoId: input.productoId,
         productoNombre: pData?.nombre || undefined,
         productoSku: pData?.sku || undefined,
+        proveedorId: input.proveedorId,
+        proveedorNombre: provData?.nombre || undefined,
+        proveedorNit: provData?.nit || undefined,
         fecha: toTimestamp(input.fecha),
+        nroFactura: input.nroFactura,
         unidades,
         precioUnitario,
         precioTotal,

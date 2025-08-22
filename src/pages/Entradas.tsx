@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "../styles/pages/entradas.css";
 
-import type { Entrada, Producto } from "../services/types";
+import type { Entrada, Producto, Proveedor } from "../services/types";
 import { subscribeProductos } from "../services/productos";
+import { subscribeProveedores } from "../services/proveedores";
 import {
     createEntrada,
     getEntradasFirstPage,
@@ -35,10 +36,17 @@ const Entradas: React.FC = () => {
     const [canNext, setCanNext] = useState(false);
     const [pageIndex, setPageIndex] = useState(0);
 
-    // productos para el modal
+    // productos
     const [productos, setProductos] = useState<Producto[]>([]);
     useEffect(() => {
         const unsub = subscribeProductos(setProductos);
+        return () => unsub();
+    }, []);
+
+    // proveedores
+    const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+    useEffect(() => {
+        const unsub = subscribeProveedores(setProveedores);
         return () => unsub();
     }, []);
 
@@ -54,9 +62,7 @@ const Entradas: React.FC = () => {
         setLoading(false);
     };
 
-    useEffect(() => {
-        loadFirst();
-    }, []);
+    useEffect(() => { loadFirst(); }, []);
 
     const nextPage = async () => {
         if (!lastDoc) return;
@@ -86,11 +92,11 @@ const Entradas: React.FC = () => {
 
     // alta
     const [openAdd, setOpenAdd] = useState(false);
-    const onAdd = async (data: { productoId: string; fecha: string | Date; unidades: number; precioUnitario: number; ivaRate?: number; }) => {
+    const onAdd = async (data: any) => {
         try {
             await createEntrada(data);
             setOpenAdd(false);
-            await loadFirst(); // recarga para ver la nueva arriba
+            await loadFirst();
         } catch (e: any) {
             alert(e.message || "No se pudo registrar la entrada");
         }
@@ -101,21 +107,18 @@ const Entradas: React.FC = () => {
         if (!confirm("¿Eliminar esta entrada?")) return;
         try {
             await deleteEntrada(id);
-            // recarga página actual de forma simple (primera)
             await loadFirst();
         } catch (e: any) {
             alert(e.message || "No se pudo eliminar la entrada");
         }
     };
 
-    // handler PDF
+    // PDF
     const handleExportEntradas = () => {
         if (!items.length) return;
-        // Pasamos las filas tal como las tienes en la tabla
-        exportEntradasPdf(items, {
+        exportEntradasPdf(items as any, {
             subtitle: "Reporte de compras",
             fileName: "entradas",
-            // filtros: ["Rango: —", "Proveedor: —"], // si luego agregas filtros
         });
     };
 
@@ -141,28 +144,41 @@ const Entradas: React.FC = () => {
                         <thead>
                             <tr>
                                 <th>Fecha</th>
+                                <th>Proveedor</th>
+                                <th>NIT</th>
+                                <th>N° Fact.</th>
                                 <th>Producto</th>
-                                <th>Unidades</th>
-                                <th>Precio unit. (bruto)</th>
-                                <th>Precio total (bruto)</th>
+                                <th>U. Medida</th>
+                                <th>Cant.</th>
+                                <th>P.Unit (bruto)</th>
+                                <th>Subtotal</th>
+                                <th>Desc. (%)</th>
+                                <th>Total operación</th>
                                 <th>Total neto</th>
-                                <th>Costo unit. neto</th>
+                                <th>C.U. neto</th>
                                 <th style={{ width: 110 }}>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {items.map((e) => (
+                            {items.map((e: any) => (
                                 <tr key={e.id}>
                                     <td>{fmtDate(e.fecha)}</td>
+                                    <td>{e.proveedorNombre || e.proveedor || "—"}</td>
+                                    <td>{e.proveedorNit || "—"}</td>
+                                    <td>{e.nroFactura || "—"}</td>
                                     <td>
                                         <div className="cell-p">
                                             <strong>{e.productoNombre || "—"}</strong>
                                             {e.productoSku && <span className="muted"> · {e.productoSku}</span>}
+                                            {e.descripcionExtra && <div className="muted" style={{ fontSize: 12 }}>{e.descripcionExtra}</div>}
                                         </div>
                                     </td>
+                                    <td>{e.unidadMedida || "—"}</td>
                                     <td>{e.unidades}</td>
                                     <td>{currency.format(e.precioUnitario)}</td>
-                                    <td>{currency.format(e.precioTotal)}</td>
+                                    <td>{currency.format(e.subtotal ?? (e.unidades * e.precioUnitario))}</td>
+                                    <td>{typeof e.descuentoPct === "number" ? `${e.descuentoPct}%` : "0%"}</td>
+                                    <td>{currency.format(e.totalOperacion ?? e.precioTotal)}</td>
                                     <td>{currency.format(e.totalNeto)}</td>
                                     <td>{currency.format(e.costoUnitarioNeto)}</td>
                                     <td className="actions">
@@ -185,6 +201,7 @@ const Entradas: React.FC = () => {
                 open={openAdd}
                 onClose={() => setOpenAdd(false)}
                 productos={productos}
+                proveedores={proveedores}
                 onSubmit={onAdd}
             />
         </div>

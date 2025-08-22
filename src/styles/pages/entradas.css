@@ -28,6 +28,7 @@
   padding: .6rem .75rem;
   border-bottom: 1px solid #eef2f7;
   text-align: left;
+  vertical-align: top;
 }
 
 .table thead th {
@@ -38,10 +39,78 @@
 
 .cell-p {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  flex-direction: column;
+  /* permite mostrar descripción extra en varias líneas */
+  gap: 2px;
 }
 
+.cell-p strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.cell-p .muted {
+  font-size: .8rem;
+  line-height: 1.2;
+}
+
+/* ====== Formularios ====== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: .25rem;
+  color: #374151;
+}
+
+.form input,
+.form select,
+.form textarea {
+  width: 100%;
+  padding: .45rem .6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: .95rem;
+  background: #fff;
+  color: #111827;
+}
+
+.form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .75rem;
+}
+
+.grid-2,
+.grid-3,
+.grid-4 {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ====== Paginación y botones ====== */
 .pagination {
   display: flex;
   align-items: center;
@@ -56,6 +125,7 @@
   border-radius: 8px;
   background: #fff;
   cursor: pointer;
+  font-size: .9rem;
 }
 
 .btn:disabled {
@@ -70,13 +140,25 @@
   border-radius: 8px;
   padding: .55rem .9rem;
   cursor: pointer;
+  font-size: .9rem;
 }
 
 .btn-primary:hover {
   background: #2980b9;
 }
 
+.btn-circle {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.btn-circle.danger {
+  color: #e74c3c;
+}
+
 .muted {
   color: #6b7280;
-  font-size: .9rem;
+  font-size: .85rem;
 }
