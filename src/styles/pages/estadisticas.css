@@ -1,0 +1,12 @@
+.estadisticas-page {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.estadisticas-page h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #34495e;
+}
