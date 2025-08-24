@@ -4,7 +4,6 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import Layout from "./components/Layout";
 
 import LoginPage from "./pages/LoginPage";
-import Facturas from "./pages/Facturas";
 import Entradas from "./pages/Entradas";
 import Salidas from "./pages/Salidas";
 import Estadisticas from "./pages/Estadisticas";
@@ -19,8 +18,7 @@ const App: React.FC = () => {
       {/* Rutas protegidas */}
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to="/facturas" replace />} />
-          <Route path="/facturas" element={<Facturas />} />
+          <Route path="/" element={<Navigate to="/Inventario" replace />} />
           <Route path="/entradas" element={<Entradas />} />
           <Route path="/salidas" element={<Salidas />} />
           <Route path="/estadisticas" element={<Estadisticas />} />

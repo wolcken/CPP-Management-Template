@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/pages/salidas.css";
-import type { Factura } from "../services/types";
+import type { Factura, Producto } from "../services/types";
+import { subscribeProductos } from "../services/productos";
 import {
     getFacturasFirstPage,
     getFacturasNextPage,
@@ -9,8 +10,9 @@ import {
 } from "../services/facturas";
 
 import FacturaViewModal from "../components/modals/FacturaViewModal";
+import AddFacturaModal from "../components/modals/AddFacturaModal";
+import { createFactura } from "../services/facturas";
 import { exportSalidasPdf } from "../utils/pdf/exportSalidasPdf";
-import { useLocation } from "react-router-dom";
 
 const currency = new Intl.NumberFormat("es-BO", { style: "currency", currency: "BOB" });
 const fmtDate = (ts: any) => {
@@ -21,8 +23,6 @@ const fmtDate = (ts: any) => {
 const PAGE_SIZE = 10;
 
 const Salidas: React.FC = () => {
-    // ✅ Hook dentro del componente
-    const location = useLocation() as any;
 
     const [items, setItems] = useState<Factura[]>([]);
     const [loading, setLoading] = useState(true);
@@ -32,6 +32,14 @@ const Salidas: React.FC = () => {
     const [canPrev, setCanPrev] = useState(false);
     const [canNext, setCanNext] = useState(false);
     const [pageIndex, setPageIndex] = useState(0);
+
+    const [productos, setProductos] = useState<Producto[]>([]);
+    const [openAdd, setOpenAdd] = useState(false);
+
+    useEffect(() => {
+        const unsub = subscribeProductos(setProductos);
+        return () => unsub();
+    }, []);
 
     const loadFirst = async () => {
         setLoading(true);
@@ -94,22 +102,30 @@ const Salidas: React.FC = () => {
         exportSalidasPdf(items, {
             subtitle: "Reporte de facturas",
             fileName: "salidas",
-            // filtros: ["Rango: —", "Cliente: —"], // si luego agregas filtros
         });
+    };
+
+    const onAdd = async (data: any) => {
+        try {
+            await createFactura(data);
+            setOpenAdd(false);
+            await loadFirst(); // refresca la tabla
+        } catch (e: any) {
+            alert(e.message || "No se pudo registrar la boleta");
+        }
     };
 
     return (
         <div className="salidas-page">
             <div className="toolbar">
-                <h2>📤 Salidas (facturas)</h2>
-                <button className="btn" onClick={handleExportSalidas} disabled={loading || items.length === 0}>
-                    Imprimir
-                </button>
+                <h2>📤 Salidas</h2>
+                <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn" onClick={handleExportSalidas} disabled={loading || items.length === 0}>
+                        Imprimir
+                    </button>
+                    <button className="btn-primary" onClick={() => setOpenAdd(true)}>+ Nueva salida</button>
+                </div>
             </div>
-
-            {location.state?.msg && (
-                <div className="alert success">{location.state.msg}</div>
-            )}
 
             {loading ? (
                 <p>Cargando...</p>
@@ -153,6 +169,14 @@ const Salidas: React.FC = () => {
             </div>
 
             <FacturaViewModal open={openView} onClose={() => setOpenView(false)} factura={detalle} />
+
+            {/* Modal de creación */}
+            <AddFacturaModal
+                open={openAdd}
+                onClose={() => setOpenAdd(false)}
+                productos={productos}
+                onSubmit={onAdd}
+            />
         </div>
     );
 };

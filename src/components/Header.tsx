@@ -10,9 +10,6 @@ const Header: React.FC = () => {
         <header className="header">
             <h1>Modelo CPP</h1>
             <nav className="nav">
-                <NavLink to="/facturas" className={({ isActive }) => (isActive ? "active" : "")}>
-                    Facturas
-                </NavLink>
                 <NavLink to="/entradas" className={({ isActive }) => (isActive ? "active" : "")}>
                     Entradas
                 </NavLink>

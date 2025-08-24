@@ -1,45 +1,62 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "../styles/pages/facturas.css";
-
-import type { Producto, FacturaItem, FacturaInput } from "../services/types";
-import { subscribeProductos } from "../services/productos";
-import { createFactura, reserveNextFacturaNumber } from "../services/facturas";
-import { getInventarioResumen } from "../services/inventario";
-
-import { useNavigate } from "react-router-dom";
+import type { Producto, FacturaItem, FacturaInput } from "../../services/types";
+import { getInventarioResumen } from "../../services/inventario";
+import { reserveNextFacturaNumber } from "../../services/facturas";
 
 const currency = new Intl.NumberFormat("es-BO", { style: "currency", currency: "BOB" });
 
-const Facturas: React.FC = () => {
-    //Navegar
-    const navigate = useNavigate();
+type Props = {
+    productos: Producto[];
+    onSubmit: (data: FacturaInput) => void;
+    submitText?: string;
+};
 
+const FacturasForm: React.FC<Props> = ({ productos, onSubmit, submitText = "Guardar boleta" }) => {
     // Cabecera
     const [numero, setNumero] = useState("");
     const [fecha, setFecha] = useState<string>(() => new Date().toISOString().slice(0, 10));
     const [clienteNombre, setClienteNombre] = useState("");
     const [clienteNIT, setClienteNIT] = useState("");
 
-    // Productos
-    const [productos, setProductos] = useState<Producto[]>([]);
-    useEffect(() => {
-        const unsub = subscribeProductos(setProductos);
-        return () => unsub();
-    }, []);
+    // Selector de producto/ítem actual
+    const [productoId, setProductoId] = useState("");
+    const [cantidad, setCantidad] = useState<number | string>("");
+    const [precio, setPrecio] = useState<number | string>(""); // CPP (solo lectura)
+    const selected = useMemo(() => productos.find((p) => p.id === productoId), [productos, productoId]);
 
-    // Cache de inventario por producto { stock, cpp }
+    // Cache de inventario { stock, cpp } por producto
     const [invCache, setInvCache] = useState<Record<string, { stock: number; cpp: number }>>({});
     const [invLoading, setInvLoading] = useState(false);
     const [invError, setInvError] = useState("");
 
-    // Form de item
-    const [productoId, setProductoId] = useState("");
-    const [cantidad, setCantidad] = useState<number | string>("");
-    const [precio, setPrecio] = useState<number | string>(""); // será CPP (read-only)
+    // Carrito/ítems
+    const [items, setItems] = useState<FacturaItem[]>([]);
 
-    const selected = useMemo(() => productos.find((p) => p.id === productoId), [productos, productoId]);
+    // Calcs
+    const totalItem = useMemo(() => {
+        const q = Number(cantidad) || 0;
+        const pr = Number(precio) || 0;
+        return +(q * pr).toFixed(2);
+    }, [cantidad, precio]);
 
-    // Cargar resumen (stock/cpp) cuando se elige producto
+    const subtotal = useMemo(
+        () => +(items.reduce((acc, it) => acc + it.total, 0).toFixed(2)),
+        [items]
+    );
+
+    // Stock disponible considerando lo ya agregado del mismo producto
+    const enCarrito = useMemo(
+        () => items.filter((x) => x.productoId === productoId).reduce((a, b) => a + b.cantidad, 0),
+        [items, productoId]
+    );
+    const disponible = useMemo(() => {
+        const stock = invCache[productoId]?.stock ?? 0;
+        return stock - enCarrito;
+    }, [invCache, productoId, enCarrito]);
+
+    const cppActual = invCache[productoId]?.cpp ?? 0;
+
+    // Cargar CPP/Stock al elegir producto
     useEffect(() => {
         (async () => {
             setInvError("");
@@ -59,41 +76,15 @@ const Facturas: React.FC = () => {
                 setInvLoading(false);
             }
         })();
-    }, [productoId]);
+    }, [productoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Carrito/ítems
-    const [items, setItems] = useState<FacturaItem[]>([]);
-
-    const totalItem = useMemo(() => {
-        const q = Number(cantidad) || 0;
-        const pr = Number(precio) || 0;
-        return +(q * pr).toFixed(2);
-    }, [cantidad, precio]);
-
-    const subtotal = useMemo(
-        () => +(items.reduce((acc, it) => acc + it.total, 0).toFixed(2)),
-        [items]
-    );
-
-    // Stock disponible considerando lo ya agregado de ese mismo producto
-    const enCarrito = useMemo(
-        () => items.filter((x) => x.productoId === productoId).reduce((a, b) => a + b.cantidad, 0),
-        [items, productoId]
-    );
-    const disponible = useMemo(() => {
-        const stock = invCache[productoId]?.stock ?? 0;
-        return stock - enCarrito;
-    }, [invCache, productoId, enCarrito]);
-
-    const cppActual = invCache[productoId]?.cpp ?? 0;
-
-    // Reglas para permitir Agregar
+    // Reglas para permitir "Agregar"
     const canAdd = useMemo(() => {
         const q = Number(cantidad);
         const pr = Number(precio);
         if (!selected) return false;
         if (invLoading || invError) return false;
-        if (!Number.isFinite(cppActual) || cppActual <= 0) return false; // sin CPP aún -> no vender
+        if (!Number.isFinite(cppActual) || cppActual <= 0) return false; // sin CPP -> no vender
         if (!q || q <= 0) return false;
         if (q > disponible) return false; // sin stock suficiente
         return pr > 0; // pr = CPP
@@ -132,9 +123,9 @@ const Facturas: React.FC = () => {
             setItems((prev) => [...prev, nuevo]);
         }
 
-        // reset parciales
+        // Reset parciales
         setCantidad("");
-        // precio queda con CPP del producto para facilitar agregar otra línea
+        // precio queda con el CPP para facilitar agregar la siguiente línea
     };
 
     const removeItem = (i: number) => {
@@ -150,8 +141,8 @@ const Facturas: React.FC = () => {
         }
     };
 
-    // Revalidar stock antes de guardar (por si se movió)
-    const validarStockAntesDeGuardar = async () => {
+    // Revalidar stock antes de enviar (por si se movió)
+    const validarStockAntesDeEnviar = async () => {
         const totalesPorProducto = items.reduce<Record<string, number>>((acc, it) => {
             acc[it.productoId] = (acc[it.productoId] || 0) + it.cantidad;
             return acc;
@@ -159,61 +150,51 @@ const Facturas: React.FC = () => {
         for (const [pid, qty] of Object.entries(totalesPorProducto)) {
             const res = await getInventarioResumen(pid);
             if (qty > res.stock) {
-                const prod = productos.find((p) => p.id === pid)?.nombre || pid;
-                throw new Error(`Stock insuficiente para "${prod}". Disponible: ${res.stock}, solicitado: ${qty}.`);
+                throw new Error(
+                    `Stock insuficiente para "${productos.find((p) => p.id === pid)?.nombre || pid}". Disponible: ${res.stock}, solicitado: ${qty}.`
+                );
             }
         }
     };
 
-    const onSave = async () => {
-        try {
-            if (!numero.trim()) return alert("Ingrese el número de factura.");
-            if (!fecha) return alert("Seleccione la fecha.");
-            if (items.length === 0) return alert("Agregue al menos un producto.");
-
-            await validarStockAntesDeGuardar();
-
-            const payload: FacturaInput = {
-                numero: numero.trim(),
-                fecha,
-                clienteNombre: clienteNombre.trim() || undefined,
-                clienteNIT: clienteNIT.trim() || undefined,
-                items,
-                subtotal,
-            };
-
-            await createFactura(payload);
-
-            // ✅ redirige a Salidas y manda un mensajito opcional
-            navigate("/salidas", {
-                replace: true,                // opcional: no deja volver al formulario con "Atrás"
-                state: { msg: `Factura ${numero} guardada correctamente.` }
-            });
-
-            // reset
-            setNumero("");
-            setFecha(new Date().toISOString().slice(0, 10));
-            setClienteNombre("");
-            setClienteNIT("");
-            setItems([]);
-            setInvCache({});
-            alert("Factura guardada correctamente.");
-        } catch (e: any) {
-            alert(e.message || "No se pudo guardar la factura");
-        }
-    };
+    const canSubmit = useMemo(() => {
+        return !!numero && !!fecha && items.length > 0;
+    }, [numero, fecha, items.length]);
 
     return (
-        <div className="facturas-page">
-            <h2 className="title">Generación de Factura</h2>
+        <form
+            className="form"
+            onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                    if (!numero.trim()) return alert("Ingrese el número de boleta.");
+                    if (!fecha) return alert("Seleccione la fecha.");
+                    if (items.length === 0) return alert("Agregue al menos un producto.");
 
+                    await validarStockAntesDeEnviar();
+
+                    const payload: FacturaInput = {
+                        numero: numero.trim(),
+                        fecha,
+                        clienteNombre: clienteNombre.trim() || undefined,
+                        clienteNIT: clienteNIT.trim() || undefined,
+                        items,
+                        subtotal,
+                    };
+
+                    onSubmit(payload);
+                } catch (err: any) {
+                    alert(err.message || "No se pudo validar/guardar la boleta.");
+                }
+            }}
+        >
             {/* Cabecera */}
             <div className="grid-2 gap">
                 <div className="input-group">
-                    <label>No. Factura</label>
+                    <label>No. Boleta</label>
                     <div className="inline">
                         <input value={numero} onChange={(e) => setNumero(e.target.value)} placeholder="000001" />
-                        <button className="btn" onClick={onAutoNumber} title="Autonumerar">Auto</button>
+                        <button type="button" className="btn" onClick={onAutoNumber} title="Autonumerar">Auto</button>
                     </div>
                 </div>
 
@@ -281,13 +262,7 @@ const Facturas: React.FC = () => {
 
                 <div className="input-group">
                     <label>Precio (CPP)</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={precio}
-                        readOnly
-                    />
+                    <input type="number" step="0.01" min="0" value={precio} readOnly />
                 </div>
 
                 <div className="input-group total-readonly">
@@ -296,7 +271,7 @@ const Facturas: React.FC = () => {
                 </div>
 
                 <div className="input-group full">
-                    <button className="btn-primary" onClick={addItem} disabled={!canAdd}>
+                    <button type="button" className="btn-primary" onClick={addItem} disabled={!canAdd}>
                         Agregar
                     </button>
                 </div>
@@ -333,7 +308,7 @@ const Facturas: React.FC = () => {
                                     <td>{it.cantidad}</td>
                                     <td>{currency.format(it.total)}</td>
                                     <td className="actions">
-                                        <button className="btn-danger" onClick={() => removeItem(i)}>🗑 Eliminar</button>
+                                        <button type="button" className="btn-danger" onClick={() => removeItem(i)}>🗑 Eliminar</button>
                                     </td>
                                 </tr>
                             ))
@@ -348,13 +323,13 @@ const Facturas: React.FC = () => {
                 </table>
             </div>
 
-            <div className="footer-actions">
-                <button className="btn-success" onClick={onSave} disabled={!numero || !fecha || items.length === 0}>
-                    Guardar Factura
+            <div className="form-actions">
+                <button type="submit" className="btn-success" disabled={!canSubmit}>
+                    {submitText}
                 </button>
             </div>
-        </div>
+        </form>
     );
 };
 
-export default Facturas;
+export default FacturasForm;
