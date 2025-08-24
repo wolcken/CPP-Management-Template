@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { BRAND } from "../theme";
 import "../styles/login.css";
 
 const LoginPage: React.FC = () => {
@@ -25,7 +26,10 @@ const LoginPage: React.FC = () => {
     return (
         <div className="login-container">
             <form onSubmit={onSubmit} className="login-box" autoComplete="on">
-                <h2>Ingresar CPP</h2>
+                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 10 }}>
+                    <img src={BRAND.logoLight} alt={BRAND.name} height={100} />
+                    <h1>{BRAND.name}</h1>
+                </div>
 
                 <label htmlFor="user">Usuario</label>
                 <input
