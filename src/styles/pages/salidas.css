@@ -1,8 +1,8 @@
 .salidas-page {
-  background: #fff;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
 }
 
 .toolbar {
@@ -14,7 +14,7 @@
 
 .table-wrap {
   overflow: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--card-border);
   border-radius: 10px;
 }
 
@@ -26,51 +26,25 @@
 .table th,
 .table td {
   padding: .6rem .75rem;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--border-light);
   text-align: left;
+  vertical-align: top;
 }
 
 .table thead th {
-  background: #f9fafb;
-  color: #374151;
+  background: var(--bg-alt);
+  color: var(--text-secondary);
   font-weight: 600;
+}
+
+.table tfoot td {
+  background: var(--bg-disabled);
 }
 
 .cell-p {
   display: flex;
   align-items: baseline;
   gap: 6px;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
-.btn {
-  padding: .45rem .8rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-}
-
-.btn:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.muted {
-  color: #6b7280;
-  font-size: .9rem;
 }
 
 .right {
@@ -81,15 +55,67 @@
   font-weight: 700;
 }
 
-.alert {
-  padding: .5rem .75rem;
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.btn {
+  padding: .45rem .8rem;
+  border: 1px solid var(--card-border);
   border-radius: 8px;
-  border: 1px solid transparent;
-  margin-bottom: .75rem;
+  background: var(--card-bg);
+  cursor: pointer;
+  font-size: .9rem;
+}
+
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: .55rem .9rem;
+  cursor: pointer;
+  font-size: .9rem;
+}
+
+.btn-primary:hover {
+  filter: brightness(0.95);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: .4rem .6rem;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  filter: brightness(0.95);
+}
+
+.alert {
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-muted);
+  color: var(--text);
 }
 
 .alert.success {
-  background: #ecfdf5;
-  border-color: #10b981;
-  color: #065f46;
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success-text);
 }

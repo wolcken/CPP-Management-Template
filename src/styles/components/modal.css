@@ -64,10 +64,11 @@
 
 .modal {
     width: min(720px, 92vw);
-    background: #fff;
+    background: var(--card-bg);
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
     overflow: hidden;
+    border: 1px solid var(--card-border);
 }
 
 .modal-header {
@@ -75,8 +76,8 @@
     align-items: center;
     justify-content: space-between;
     padding: .8rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    background: #fff;
+    border-bottom: 1px solid var(--card-border);
+    background: var(--card-bg);
 }
 
 .modal-title {
@@ -88,6 +89,7 @@
 .modal-title h3 {
     margin: 0;
     font-size: 1.05rem;
+    color: var(--text-strong);
 }
 
 .btn-close {
@@ -96,16 +98,17 @@
     font-size: 26px;
     line-height: 1;
     cursor: pointer;
-    color: #374151;
+    color: var(--text-secondary);
+    transition: color .2s ease;
 }
 
 .btn-close:hover {
-    color: #111827;
+    color: var(--text-strong);
 }
 
 .modal-body {
     padding: 1rem;
     max-height: 70vh;
     overflow: auto;
-    background: #fafafa;
+    background: var(--bg-muted);
 }

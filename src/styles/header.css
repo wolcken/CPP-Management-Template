@@ -1,10 +1,10 @@
 .header {
-    background: #2c3e50;
+    background: var(--header-bg);
     padding: 0.8rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #ecf0f1;
+    color: var(--header-text);
 }
 
 .header h1 {
@@ -26,11 +26,11 @@
 }
 
 .nav a:hover {
-    background: rgba(236, 240, 241, 0.2);
+    background: color-mix(in srgb, var(--header-text) 15%, transparent);
 }
 
 .nav a.active {
-    background: #3498db;
+    background: var(--accent);
     color: #fff;
 }
 
@@ -38,12 +38,12 @@
     padding: 0.5rem 0.9rem;
     border: none;
     border-radius: 6px;
-    background: #e74c3c;
+    background: var(--danger);
     color: #fff;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: filter 0.3s ease;
 }
 
 .logout-btn:hover {
-    background: #c0392b;
+    filter: brightness(0.95);
 }

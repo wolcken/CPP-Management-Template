@@ -1,225 +1,226 @@
 .registros-page {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .registros-page h2 {
-  margin: 0 0 .5rem 0;
-  color: #34495e;
+    margin: 0 0 .5rem 0;
+    color: var(--text-secondary);
 }
 
 .registros-page .subtitle {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: #6b7280;
-  font-size: .95rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--muted);
+    font-size: .95rem;
 }
 
 .actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
 }
 
 .card-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #fafafa;
-  cursor: pointer;
-  transition: transform .05s ease, background .2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: var(--bg-muted);
+    cursor: pointer;
+    transition: transform .05s ease, background .2s ease;
 }
 
 .card-btn:hover {
-  background: #f3f4f6;
-  transform: translateY(-1px);
+    background: var(--bg-soft);
+    transform: translateY(-1px);
 }
 
 .card-btn:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-  transform: none;
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .card-btn .title {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 .card-btn .meta {
-  font-size: .85rem;
-  color: #6b7280;
+    font-size: .85rem;
+    color: var(--muted);
 }
 
 .card-btn.green {
-  border-left: 4px solid #10b981;
+    border-left: 4px solid var(--success);
 }
 
 .card-btn.blue {
-  border-left: 4px solid #3b82f6;
+    border-left: 4px solid var(--info);
 }
 
 .card-btn.indigo {
-  border-left: 4px solid #6366f1;
+    border-left: 4px solid #6366f1;
+    /* opcional -> puedes definir --indigo */
 }
 
 .card-btn.gray {
-  border-left: 4px solid #9ca3af;
+    border-left: 4px solid #9ca3af;
+    /* opcional -> puedes definir --gray */
 }
 
 /* Lista dentro de modales */
 .list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: .75rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  background: #fff;
-  margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: .75rem 1rem;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    margin-bottom: 8px;
 }
 
 .item.column {
-  flex-direction: row;
-  align-items: flex-start;
+    flex-direction: row;
+    align-items: flex-start;
 }
 
 .item .left {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
 }
 
 .item .left.wide {
-  flex-direction: column;
-  align-items: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .index {
-  color: #6b7280;
+    color: var(--muted);
 }
 
 .name {
-  color: #1f2937;
+    color: var(--text-strong);
 }
 
 .muted {
-  color: #6b7280;
-  font-size: .95rem;
+    color: var(--muted);
+    font-size: .95rem;
 }
 
 /* Botones redondos de acciones */
 .btn-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  display: inline-grid;
-  place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    display: inline-grid;
+    place-items: center;
 }
 
 .btn-circle.success {
-  background: #10b981;
-  color: #fff;
+    background: var(--success);
+    color: #fff;
 }
 
 .btn-circle.danger {
-  background: #3b82f6;
-  color: #fff;
+    background: var(--info);
+    color: #fff;
 }
 
-/* azul como tu captura */
 .btn-circle:hover {
-  filter: brightness(0.95);
+    filter: brightness(0.95);
 }
 
 /* Formularios dentro de sub-modales */
 .form {
-  display: grid;
-  gap: 10px;
+    display: grid;
+    gap: 10px;
 }
 
 .form label {
-  font-size: .9rem;
-  color: #374151;
+    font-size: .9rem;
+    color: var(--text-secondary);
 }
 
 .form input {
-  width: 100%;
-  padding: .55rem .7rem;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+    width: 100%;
+    padding: .55rem .7rem;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
 }
 
 .form input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, .15);
+    outline: none;
+    border-color: var(--info);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--info) 20%, transparent);
 }
 
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 4px;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
 }
 
 .btn-primary {
-  background: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: .5rem .9rem;
-  cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: .5rem .9rem;
+    cursor: pointer;
 }
 
 .btn-primary:hover {
-  background: #2980b9;
+    filter: brightness(0.95);
 }
 
 /* Grid 2 columnas para formularios */
 .grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
 }
 
 .grid-2>.switch {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding-top: 22px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding-top: 22px;
 }
 
 .grid-2 select,
 .grid-2 input {
-  width: 100%;
-  padding: .55rem .7rem;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+    width: 100%;
+    padding: .55rem .7rem;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
 }
 
 .hint {
-  color: #6b7280;
-  font-size: .85rem;
-  margin-top: .25rem;
+    color: var(--muted);
+    font-size: .85rem;
+    margin-top: .25rem;
 }
 
 /* Color para tarjeta Productos */
 .card-btn.purple {
-  border-left: 4px solid #8b5cf6;
+    border-left: 4px solid #8b5cf6;
 }

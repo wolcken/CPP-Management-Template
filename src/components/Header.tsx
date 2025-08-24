@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { BRAND } from "../theme";
 import "../styles/header.css";
 
 const Header: React.FC = () => {
@@ -8,7 +9,10 @@ const Header: React.FC = () => {
 
     return (
         <header className="header">
-            <h1>Modelo CPP</h1>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <img src={BRAND.logoLight} alt={BRAND.name} height={36} />
+                <h1>{BRAND.name}</h1>
+            </div>
             <nav className="nav">
                 <NavLink to="/entradas" className={({ isActive }) => (isActive ? "active" : "")}>
                     Entradas

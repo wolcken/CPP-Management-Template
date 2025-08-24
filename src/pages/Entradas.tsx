@@ -125,7 +125,7 @@ const Entradas: React.FC = () => {
     return (
         <div className="entradas-page">
             <div className="toolbar">
-                <h2>📥 Entradas (compras)</h2>
+                <h2>📥 Entradas</h2>
                 <div style={{ display: "flex", gap: 8 }}>
                     <button className="btn" onClick={handleExportEntradas} disabled={loading || items.length === 0}>
                         Imprimir

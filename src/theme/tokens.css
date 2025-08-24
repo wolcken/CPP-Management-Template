@@ -1,0 +1,48 @@
+:root {
+    /* base */
+    --brand: #0F3D3E;
+    --brand-2: #1B6B6E;
+    --accent: #2D9CDB;
+    --bg: #F5F7FA;
+    --text: #1E1E1E;
+
+    /* estados */
+    --success: #2E7D32;
+    --danger: #E53935;
+    --info: #3b82f6;
+    --warning: #f59e0b;
+
+    /* componentes */
+    --btn-bg: var(--brand);
+    --btn-text: #fff;
+    --header-bg: var(--brand);
+    --header-text: #fff;
+    --card-bg: #fff;
+    --card-border: #E6E8EB;
+
+    /* extras útiles detectados en tus CSS */
+    --border-light: #EEF2F7;
+    --text-strong: #111827;
+    --text-secondary: #374151;
+    --muted: #6b7280;
+
+    --bg-alt: #f9fafb;
+    --bg-muted: #fafafa;
+    --bg-soft: #f3f4f6;
+    --bg-disabled: #fbfbfb;
+
+    /* badges / alerts (usados en factura y salidas) */
+    --badge-bg: #eef2ff;
+    --badge-text: #1e3a8a;
+    --badge-border: #c7d2fe;
+
+    --warn-bg: #fff1f2;
+    --warn-text: #991b1b;
+    --warn-border: #fecaca;
+
+    --success-bg: #ecfdf5;
+    --success-text: #065f46;
+
+    /* opcional de inventario */
+    --highlight: #fff7cc;
+}
