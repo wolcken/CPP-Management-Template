@@ -100,7 +100,7 @@ const Salidas: React.FC = () => {
     const handleExportSalidas = () => {
         if (!items.length) return;
         exportSalidasPdf(items, {
-            subtitle: "Reporte de facturas",
+            subtitle: "Reporte de Salidas",
             fileName: "salidas",
         });
     };

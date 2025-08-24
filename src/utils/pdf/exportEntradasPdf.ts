@@ -46,7 +46,7 @@ export function exportEntradasPdf(
         { header: "Producto", dataKey: "producto" },
         { header: "UM", dataKey: "unidadMedida" },
         { header: "Cant.", dataKey: "unidades" },
-        { header: "P.Unit (bruto)", dataKey: "precioUnitario" },
+        { header: "P.Unit", dataKey: "precioUnitario" },
         { header: "Subtotal", dataKey: "subtotal" },
         { header: "Desc. (%)", dataKey: "descuentoPct" },
         { header: "Total operación", dataKey: "totalOperacion" },
@@ -113,9 +113,9 @@ export function exportEntradasPdf(
         filtersSummary: [
             ...(options?.filtros || []),
             `Registros: ${mapped.length}`,
-            `Subtotal bruto: ${subtotalBruto}`,
+            `Subtotal: ${subtotalBruto}`,
             `Descuento total: ${descuentoTotal}`,
-            `Total operación (bruto): ${totalOperacion}`,
+            `Total operación: ${totalOperacion}`,
             `Importe total neto: ${totalNeto}`,
         ],
         // Los campos que deben formatearse como moneda

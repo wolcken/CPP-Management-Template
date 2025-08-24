@@ -63,7 +63,6 @@ export function exportKardexPdf(
         fileName: `Kardex_${slug(productoNombre)}`,
         orientation: "l",
         filtersSummary,
-        logoDataUrl: extra.logoDataUrl,
         currencyFields: ["cpp", "entradaTotal", "salidaTotal", "saldoTotal"],
     });
 }

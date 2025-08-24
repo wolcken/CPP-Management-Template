@@ -6,7 +6,7 @@ export const BRAND_BASE: Brand = {
   logoLight: "/brand/logo.png",
   logoDark: "/brand/logo-invert.png",
   pdf: {
-    headerTitle: "KÁRDEX · MODELO CPP",
+    headerTitle: "Modelo Costo Promedio Ponderado",
     footerText: "Sistema base – Bolivia",
   },
   ui: {

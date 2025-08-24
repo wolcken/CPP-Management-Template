@@ -117,7 +117,7 @@ const Entradas: React.FC = () => {
     const handleExportEntradas = () => {
         if (!items.length) return;
         exportEntradasPdf(items as any, {
-            subtitle: "Reporte de compras",
+            subtitle: "Reporte de Entradas",
             fileName: "entradas",
         });
     };

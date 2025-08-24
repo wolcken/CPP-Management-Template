@@ -1,7 +1,8 @@
 import jsPDF from "jspdf";
 import autoTable, { type RowInput, type UserOptions } from "jspdf-autotable";
+import { BRAND_BASE } from "../../theme/brands/base";
 
-// Formato de fecha/hora local (La Paz)
+// Formato fecha/hora local (La Paz)
 const fmtDateTime = () =>
     new Intl.DateTimeFormat("es-BO", {
         dateStyle: "medium",
@@ -15,11 +16,10 @@ type ExportOptions = {
     subtitle?: string;
     columns: ColumnDef[];
     rows: Array<Record<string, any>>;
-    fileName?: string;           // sin .pdf
-    orientation?: "p" | "l";     // portrait | landscape
-    filtersSummary?: string[];   // líneas con filtros aplicados
-    logoDataUrl?: string;        // opcional: logo en base64 (png o jpg)
-    currencyFields?: string[];   // dataKeys que deben formatearse como moneda BOB
+    fileName?: string;
+    orientation?: "p" | "l";
+    filtersSummary?: string[];
+    currencyFields?: string[];
 };
 
 const BOB = new Intl.NumberFormat("es-BO", { style: "currency", currency: "BOB" });
@@ -33,47 +33,72 @@ export function exportTablePdf(opts: ExportOptions) {
         fileName = title.toLowerCase().replace(/\s+/g, "_"),
         orientation = "l",
         filtersSummary = [],
-        logoDataUrl,
         currencyFields = [],
     } = opts;
 
     const doc = new jsPDF({ orientation, unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const marginX = 40;
-    let cursorY = 40;
 
-    // Logo (opcional)
-    if (logoDataUrl) {
-        const logoW = 120;
-        const logoH = 40;
-        doc.addImage(logoDataUrl, "PNG", marginX, cursorY, logoW, logoH);
-    }
+    // === HEADER PROFESIONAL ===
+    const drawHeader = () => {
+        // Logo (si existe en public)
+        const logoPath = BRAND_BASE.logoLight;
+        if (logoPath) {
+            try {
+                doc.addImage(logoPath, "PNG", marginX, 20, 100, 40);
+            } catch {
+                // Si no se pudo cargar, no rompe
+            }
+        }
 
-    // Título centrado
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(title, pageWidth / 2, cursorY + 16, { align: "center" });
+        // Nombre empresa
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text(BRAND_BASE.name, pageWidth / 2, 35, { align: "center" });
+
+        // NIT (si hay)
+        if (BRAND_BASE.nit) {
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`NIT: ${BRAND_BASE.nit}`, pageWidth / 2, 50, { align: "center" });
+        }
+
+        // Título header PDF
+        if (BRAND_BASE.pdf?.headerTitle) {
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.text(BRAND_BASE.pdf.headerTitle, pageWidth - marginX, 35, { align: "right" });
+        }
+
+        // Línea divisoria
+        doc.setDrawColor(15, 61, 62); // --brand
+        doc.setLineWidth(1);
+        doc.line(marginX, 65, pageWidth - marginX, 65);
+    };
+
+    drawHeader();
+
+    let cursorY = 80;
 
     // Subtítulo / Fecha
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const sub = subtitle ? `${subtitle} — ${fmtDateTime()}` : fmtDateTime();
-    doc.text(sub, pageWidth / 2, cursorY + 32, { align: "center" });
+    doc.text(sub, pageWidth / 2, cursorY, { align: "center" });
+    cursorY += 20;
 
     // Filtros (si hay)
     if (filtersSummary.length) {
-        let y = cursorY + 56;
         doc.setFontSize(9);
         filtersSummary.forEach((line) => {
-            doc.text(`• ${line}`, marginX, y);
-            y += 14;
+            doc.text(`• ${line}`, marginX, cursorY);
+            cursorY += 14;
         });
-        cursorY = y - 4;
-    } else {
-        cursorY = cursorY + 48;
     }
 
-    // Preparar columnas y filas
+    // Preparar tabla
     const head = [columns.map((c) => c.header)];
     const body: RowInput[] = rows.map((r) =>
         columns.map((c) => {
@@ -85,22 +110,25 @@ export function exportTablePdf(opts: ExportOptions) {
         })
     );
 
-    // Tabla
+    // === Tabla con header y footer en cada página ===
     autoTable(doc, {
         head,
         body,
-        startY: cursorY,
+        startY: cursorY + 10,
         styles: { fontSize: 9, cellPadding: 6, valign: "middle" },
-        headStyles: { fillColor: [33, 150, 243], textColor: 255, fontStyle: "bold" },
-        alternateRowStyles: { fillColor: [245, 245, 245] },
+        headStyles: { fillColor: [15, 61, 62], textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
         margin: { left: marginX, right: marginX },
-        didDrawPage: () => {
-            // Pie de página con número de página
-            const str = `Página ${doc.getNumberOfPages()}`;
-            doc.setFontSize(9);
-            doc.text(str, pageWidth - marginX, doc.internal.pageSize.getHeight() - 20, {
-                align: "right",
-            });
+        didDrawPage: (data) => {
+            drawHeader();
+
+            // Footer
+            if (BRAND_BASE.pdf?.footerText) {
+                doc.setFontSize(9);
+                doc.text(BRAND_BASE.pdf.footerText, marginX, pageHeight - 20);
+            }
+            const str = `Página ${data.pageNumber}`;
+            doc.text(str, pageWidth - marginX, pageHeight - 20, { align: "right" });
         },
     } as UserOptions);
 
