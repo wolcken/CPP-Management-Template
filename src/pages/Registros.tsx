@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "../styles/pages/registros.css";
 
-import type { Marca, Categoria, Proveedor, Producto } from "../services/types";
+import type { Marca, Categoria, Proveedor, Producto, ProductoInput } from "../services/types";
 import { subscribeMarcas, createMarca, deleteMarca } from "../services/marcas";
 import { subscribeCategorias, createCategoria, deleteCategoria } from "../services/categorias";
 import { subscribeProveedores, createProveedor, deleteProveedor } from "../services/proveedores";
-import { subscribeProductos, createProducto, deleteProducto } from "../services/productos";
+import { subscribeProductos, createProductoAutoSkuPorCategoria, deleteProducto } from "../services/productos";
 
 import MarcasModal from "../components/modals/MarcasModal";
 import CategoriasModal from "../components/modals/CategoriasModal";
@@ -93,9 +93,10 @@ const Registros: React.FC = () => {
         }
     };
 
-    const onAddProducto = async (data: Omit<Producto, "id">) => {
+    const onAddProducto = async (data: Omit<ProductoInput, "sku">) => {
         try {
-            await createProducto(data);
+            const { sku } = await createProductoAutoSkuPorCategoria(data);
+            alert(`Producto creado con SKU ${sku}`);
             setOpenAddProducto(false);
         } catch (e: any) {
             alert(e.message || "No se pudo crear el producto");

@@ -12,7 +12,7 @@ type Props = {
 };
 
 const AddEntradaModal: React.FC<Props> = ({ open, onClose, productos, proveedores, onSubmit }) => (
-    <Modal open={open} title="Nueva entrada / compra" onClose={onClose}>
+    <Modal open={open} title="Nueva entrada" onClose={onClose} size="xl" bodyClassName="tall">
         <EntradaForm productos={productos} proveedores={proveedores} onSubmit={onSubmit} submitText="Registrar compra" />
     </Modal>
 );

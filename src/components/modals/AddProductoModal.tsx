@@ -9,7 +9,7 @@ type Props = {
     marcas: Marca[];
     categorias: Categoria[];
     proveedores: Proveedor[];
-    onSubmit: (data: ProductoInput) => void;
+    onSubmit: (data: Omit<ProductoInput, "sku">) => void;
 };
 
 const AddProductoModal: React.FC<Props> = ({ open, onClose, marcas, categorias, proveedores, onSubmit }) => (

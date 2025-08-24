@@ -1,8 +1,9 @@
 // src/services/productos.ts
 import { db } from "../lib/firebase";
 import {
-    addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot,
-    orderBy, query, serverTimestamp, updateDoc, where, type Unsubscribe
+    collection, deleteDoc, doc, getDoc, getDocs, onSnapshot,
+    orderBy, query, serverTimestamp, updateDoc, where, type Unsubscribe,
+    runTransaction
 } from "firebase/firestore";
 import type { Producto, ProductoInput } from "./types";
 
@@ -34,7 +35,7 @@ export async function getProductoById(id: string): Promise<Producto> {
 
 /** ========= Crear / Actualizar nominal ========= */
 
-/** Validación / normalización de campos nominales */
+/** Validación / normalización de campos nominales (EXIGE SKU) */
 function sanitizeProducto(p: ProductoInput): ProductoInput {
     const nombre = (p.nombre || "").trim();
     const sku = (p.sku || "").trim();
@@ -54,31 +55,84 @@ function sanitizeProducto(p: ProductoInput): ProductoInput {
         categoriaId: p.categoriaId,
         proveedorId: p.proveedorId,
         unidad,
-        activo: p.activo ?? true,
     };
 }
 
-/** Crear producto nominal (inicializa stock/cpp/valorizado en 0) */
-export async function createProducto(input: ProductoInput): Promise<string> {
-    const data = sanitizeProducto(input);
+/** Versión sin SKU (para creación con SKU automático) */
+function sanitizeProductoWithoutSku(p: Omit<ProductoInput, "sku">): Omit<ProductoInput, "sku"> {
+    const nombre = (p.nombre || "").trim();
+    if (!nombre) throw new Error("El nombre es obligatorio.");
+    if (!p.marcaId) throw new Error("Selecciona una marca.");
+    if (!p.categoriaId) throw new Error("Selecciona una categoría.");
+    if (!p.proveedorId) throw new Error("Selecciona un proveedor.");
+    const unidad = (p.unidad || "").trim() || undefined;
+    return {
+        nombre,
+        marcaId: p.marcaId,
+        categoriaId: p.categoriaId,
+        proveedorId: p.proveedorId,
+        unidad,
+    };
+}
 
-    // SKU único (case-insensitive)
-    const existsQ = query(colRef, where("sku_lc", "==", norm(data.sku)));
-    const exists = await getDocs(existsQ);
-    if (!exists.empty) throw new Error("Ya existe un producto con ese SKU.");
+/**
+ * Crear producto con SKU automático por CATEGORÍA: PREFIJO + secuencia.
+ * - Prefijo se obtiene del nombre de la categoría (normalizePrefix)
+ * - Contador por prefijo: meta/counters → { skuSeqs: { PREFIJO: N } }
+ * - Formato: PREFIJO-0001, PREFIJO-0002, ...
+ */
+export async function createProductoAutoSkuPorCategoria(
+    input: Omit<ProductoInput, "sku">
+): Promise<{ id: string; sku: string }> {
+    const sanitized = sanitizeProductoWithoutSku(input);
 
-    const docRef = await addDoc(colRef, {
-        ...data,
-        // denormalizado de búsqueda
-        sku_lc: norm(data.sku),
-        nombre_lc: norm(data.nombre),
-        // inventario inicial
-        stock: 0,
-        cpp: 0,
-        valorizado: 0,
-        createdAt: serverTimestamp(),
+    const res = await runTransaction(db, async (tx) => {
+        // 1) Leer categoría para armar el prefijo
+        const catRef = doc(db, "categorias", sanitized.categoriaId);
+        const catSnap = await tx.get(catRef);
+        const catNombre = catSnap.exists() ? ((catSnap.data() as any).nombre || "PRD") : "PRD";
+        const prefix = normalizePrefix(catNombre) || "PRD";
+
+        // 2) Leer/actualizar contador por prefijo
+        const countersRef = doc(db, "meta", "counters");
+        const countersSnap = await tx.get(countersRef);
+        const data = countersSnap.exists() ? (countersSnap.data() as any) : {};
+        const seqs = data.skuSeqs || {};
+        const last = Number(seqs[prefix] || 0);
+        const next = last + 1;
+
+        // Escribir el nuevo valor del prefijo (merge)
+        tx.set(countersRef, { skuSeqs: { [prefix]: next } }, { merge: true });
+
+        // 3) Construir el SKU
+        const sku = `${prefix}-${String(next).padStart(4, "0")}`;
+
+        // 4) Crear el producto
+        const newDoc = doc(colRef);
+        tx.set(newDoc, {
+            ...sanitized,
+            sku,
+            sku_lc: norm(sku),
+            nombre_lc: norm(sanitized.nombre),
+            stock: 0,
+            cpp: 0,
+            valorizado: 0,
+            createdAt: serverTimestamp(),
+        });
+
+        return { id: newDoc.id, sku };
     });
-    return docRef.id;
+
+    return res;
+}
+
+/** Normaliza nombre → PREFIJO (hasta 4 chars, sin tildes ni símbolos) */
+function normalizePrefix(s: string): string {
+    return (s || "PRD")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // quitar acentos
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "") // solo A-Z 0-9
+        .slice(0, 4) || "PRD";
 }
 
 /**

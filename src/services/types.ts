@@ -19,7 +19,6 @@ export type Producto = {
     categoriaId: string;
     proveedorId: string;
     unidad?: string;   // p.ej. "unidad", "kg", "m"
-    activo?: boolean;  // default: true
 };
 
 export type ProductoInput = Omit<Producto, "id">;
