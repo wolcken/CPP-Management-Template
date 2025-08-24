@@ -65,19 +65,20 @@ const Estadisticas: React.FC = () => {
                 <Card title="Evolución mensual: Facturas vs Ingresos">
                     {data ? <MonthlyLine data={data.monthly} /> : <div style={{ padding: 16 }}>Sin datos</div>}
                 </Card>
-                <Card title="Top 5 productos por cantidad">
-                    {data ? <TopProductsBar data={data.top} /> : <div style={{ padding: 16 }}>Sin datos</div>}
+
+                <Card title="KPIs por producto">
+                    {data ? <ProductKpis rows={data.productKpis} /> : <div style={{ padding: 16 }}>Sin datos</div>}
                 </Card>
             </div>
 
 
             {/* Sección inferior */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <Card title="Top 5 productos por cantidad">
+                    {data ? <TopProductsBar data={data.top} /> : <div style={{ padding: 16 }}>Sin datos</div>}
+                </Card>
                 <Card title="Facturas por categoría (composición)">
                     {data ? <CategoryStackedArea data={data.stacked} /> : <div style={{ padding: 16 }}>Sin datos</div>}
-                </Card>
-                <Card title="KPIs por producto">
-                    {data ? <ProductKpis rows={data.productKpis} /> : <div style={{ padding: 16 }}>Sin datos</div>}
                 </Card>
             </div>
         </div>

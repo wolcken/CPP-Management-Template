@@ -14,7 +14,7 @@ export const ProductKpis: React.FC<{ rows: ProductKpi[] }> = ({ rows }) => (
                     <th style={th}>Producto</th>
                     <th style={th}>Stock</th>
                     <th style={th}>CPP</th>
-                    <th style={th}>Última salida</th>
+                    {/* <th style={th}>Última salida</th> */}
                 </tr>
             </thead>
             <tbody>
@@ -23,7 +23,7 @@ export const ProductKpis: React.FC<{ rows: ProductKpi[] }> = ({ rows }) => (
                         <td style={tdLeft}>{p.nombre}</td>
                         <td style={tdCenter}>{fmtNumber3(p.stock)}</td>
                         <td style={tdCenter}>{fmtCurrency3(p.cpp)}</td>
-                        <td style={tdCenter}>{p.ultimaSalida ? new Date(p.ultimaSalida).toLocaleDateString("es-BO") : "—"}</td>
+                        {/* <td style={tdCenter}>{p.ultimaSalida ? new Date(p.ultimaSalida).toLocaleDateString("es-BO") : "—"}</td> */}
                     </tr>
                 ))}
             </tbody>
@@ -45,4 +45,4 @@ const tdLeft: React.CSSProperties = {
     color: "#0f172a",
     borderBottom: "1px solid #f1f5f9",
 };
-const tdCenter: React.CSSProperties = { ...tdLeft, textAlign: "center" };
+const tdCenter: React.CSSProperties = { ...tdLeft, textAlign: "left" };
